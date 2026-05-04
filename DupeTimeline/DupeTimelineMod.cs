@@ -1,52 +1,40 @@
 using HarmonyLib;
 using KMod;
-using PeterHan.PLib.Core;
-using PeterHan.PLib.Options;
-using PeterHan.PLib.PatchManager;
 using UnityEngine;
 
 namespace DupeTimeline {
     public sealed class DupeTimelineMod : UserMod2 {
         public override void OnLoad(Harmony harmony) {
             base.OnLoad(harmony);
-            PUtil.InitLibrary();
-
-            var pm = new PPatchManager(harmony);
-            pm.RegisterPatchClass(typeof(DupeTimelineMod));
-            pm.RegisterPatchClass(typeof(Patches.ChoreDriverPatches));
-            pm.RegisterPatchClass(typeof(Patches.WorkablePatches));
-            pm.RegisterPatchClass(typeof(Patches.NavigatorPatches));
-            pm.RegisterPatchClass(typeof(Patches.MinionConfigPatches));
-            pm.RegisterPatchClass(typeof(UI.DupeTimelineSideScreenPatch));
-
-            new POptions().RegisterOptions(this, typeof(DupeTimelineOptions));
+            Log.Info("Loading");
+            harmony.PatchAll(typeof(DupeTimelineMod).Assembly);
         }
+    }
 
+    // Patches Game.OnSpawn so we can reset the in-memory store for each new
+    // save (and tear down the debug-hotkey GameObject from the previous save
+    // if there was one). Replaces what PLib's [PLibMethod(RunAt.OnStartGame)]
+    // would have done — keeps PLib out of the dependency tree.
+    [HarmonyPatch(typeof(Game), nameof(Game.OnSpawn))]
+    internal static class Game_OnSpawn_Patch {
         private static GameObject debugGo;
 
-        [PLibMethod(RunAt.OnStartGame)]
-        internal static void OnStartGame() {
-            var options = POptions.ReadSettings<DupeTimelineOptions>()
-                ?? new DupeTimelineOptions();
-            TimelineStore.Configure(options);
+        internal static void Postfix() {
             TimelineStore.Reset();
 
-            // Plain GameObject host for the debug hotkey — no KMonoBehaviour
-            // lifecycle needed.
+            if (debugGo != null) Object.Destroy(debugGo);
             debugGo = new GameObject("DupeTimelineDebug");
             debugGo.AddComponent<Debug.DebugDumpHotkey>();
             Object.DontDestroyOnLoad(debugGo);
 
-            PUtil.LogDebug("DupeTimeline started (press F10 to dump timelines)");
+            Log.Info("Started (press F10 to dump timelines)");
         }
+    }
 
-        [PLibMethod(RunAt.OnEndGame)]
-        internal static void OnEndGame() {
+    [HarmonyPatch(typeof(Game), nameof(Game.OnDestroy))]
+    internal static class Game_OnDestroy_Patch {
+        internal static void Prefix() {
             TimelineStore.Reset();
-            if (debugGo != null) {
-                Object.Destroy(debugGo);
-                debugGo = null;
-            }
         }
     }
 }

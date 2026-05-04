@@ -1,28 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Build setup
-    -----------
-    ONI mods compile against the game's shipped Unity DLLs. Those DLLs are not
-    redistributable, so each developer populates a local RefDlls/ folder.
+    Build = install. Running `dotnet build -c Release` produces the mod DLL
+    AND copies it into the local ONI mods folder, ready to enable in-game.
 
-    Required DLLs (copy from <ONI install>/OxygenNotIncluded_Data/Managed/):
-      Assembly-CSharp.dll
-      Assembly-CSharp-firstpass.dll
-      UnityEngine.dll
-      UnityEngine.CoreModule.dll
-      UnityEngine.UI.dll
-      0Harmony.dll
+    Auto-detected paths (Windows):
+      Game DLLs:  <Steam>\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\
+      Mods folder: %USERPROFILE%\Documents\Klei\OxygenNotIncluded\mods\Local\DupeTimeline\
 
-    PLib (https://github.com/peterhaneve/ONIMods/tree/main/PLib):
-      Build PLib.dll yourself or extract from a PeterHan mod's bin/ output,
-      then drop it into RefDlls/ alongside the others.
+    If your install lives somewhere else, override:
+      dotnet build -c Release -p:GameFolder="D:\Games\ONI\OxygenNotIncluded_Data\Managed"
+      dotnet build -c Release -p:ModInstallFolder="C:\custom\mods\path"
+      dotnet build -c Release -p:CopyToMods=false   # build only, no install
 
-    Override the path with: -p:GameLibsFolder=C:\path\to\dlls
-
-    Output: bin/Release/DupeTimeline.dll. Copy that DLL plus mod.yaml and
-    mod_info.yaml into:
-      %USERPROFILE%\Documents\Klei\OxygenNotIncluded\mods\Local\DupeTimeline\
+    Linux/Mac with Steam Proton: set GameFolder to the .../drive_c/... path inside
+    the Steam install. CopyToMods=false is recommended; copy the DLL manually.
   -->
 
   <PropertyGroup>
@@ -33,38 +25,57 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release</Configurations>
-    <GameLibsFolder Condition="'$(GameLibsFolder)' == ''">$(MSBuildThisFileDirectory)..\RefDlls</GameLibsFolder>
+
+    <!-- Auto-detect game install. First match wins. -->
+    <GameFolder Condition="'$(GameFolder)' == '' AND Exists('$(MSBuildProgramFiles32)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">$(MSBuildProgramFiles32)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
+    <GameFolder Condition="'$(GameFolder)' == '' AND Exists('C:\Program Files\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">C:\Program Files\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
+    <GameFolder Condition="'$(GameFolder)' == '' AND Exists('D:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">D:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
+    <GameFolder Condition="'$(GameFolder)' == '' AND Exists('E:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">E:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
+
+    <ModInstallFolder Condition="'$(ModInstallFolder)' == ''">$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Local\DupeTimeline</ModInstallFolder>
   </PropertyGroup>
+
+  <Target Name="ValidateGameFolder" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(GameFolder)')"
+           Text="Could not locate ONI install. Set GameFolder explicitly: dotnet build -p:GameFolder=&quot;path\to\OxygenNotIncluded_Data\Managed&quot;" />
+  </Target>
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(GameLibsFolder)\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(GameFolder)\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(GameLibsFolder)\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>$(GameLibsFolder)\UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(GameLibsFolder)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(GameLibsFolder)\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(GameFolder)\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>$(GameLibsFolder)\0Harmony.dll</HintPath>
+      <HintPath>$(GameFolder)\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="PLib">
-      <HintPath>$(GameLibsFolder)\PLib.dll</HintPath>
-      <Private>true</Private>
+    <Reference Include="UnityEngine">
+      <HintPath>$(GameFolder)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameFolder)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameFolder)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(GameFolder)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(GameFolder)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GameFolder)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 
@@ -72,5 +83,13 @@
     <None Include="mod.yaml" CopyToOutputDirectory="PreserveNewest" />
     <None Include="mod_info.yaml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="InstallToMods" AfterTargets="Build" Condition="'$(CopyToMods)' != 'false'">
+    <MakeDir Directories="$(ModInstallFolder)" />
+    <Copy SourceFiles="$(TargetPath);$(MSBuildThisFileDirectory)mod.yaml;$(MSBuildThisFileDirectory)mod_info.yaml"
+          DestinationFolder="$(ModInstallFolder)"
+          SkipUnchangedFiles="false" />
+    <Message Importance="high" Text="Installed DupeTimeline -> $(ModInstallFolder)" />
+  </Target>
 
 </Project>

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using PeterHan.PLib.Core;
 
 namespace DupeTimeline {
     // Singleton normalizer. Receives raw hook events (chore start/end,
@@ -27,8 +26,8 @@ namespace DupeTimeline {
     // A chore with no Workable target (mingle, idle move) stays in its
     // initial Travel segment for the entire chore.
     public static class TimelineStore {
-        private const int DefaultCapacity = 200;
-        private const int FallbackCapacity = 200;
+        // ~3 cycles for a busy dupe.
+        private const int Capacity = 210;
 
         private static readonly Dictionary<int, TimelineRingBuffer> store
             = new Dictionary<int, TimelineRingBuffer>();
@@ -39,8 +38,6 @@ namespace DupeTimeline {
         private static readonly Dictionary<int, int> workerByWorkable
             = new Dictionary<int, int>();
 
-        private static int capacity = DefaultCapacity;
-
         private struct OpenChore {
             public string Guid;
             public string ChoreTypeId;
@@ -48,13 +45,6 @@ namespace DupeTimeline {
             public int TargetCell;            // -1 if unknown
             public float SegmentStartTime;
             public TimelineSegmentKind SegmentKind;
-        }
-
-        public static void Configure(DupeTimelineOptions options) {
-            // 200 segments is roughly 3 cycles for a busy dupe; tune via options.
-            capacity = options != null && options.CyclesRetained > 0
-                ? options.CyclesRetained * 70
-                : FallbackCapacity;
         }
 
         public static void Reset() {
@@ -209,7 +199,7 @@ namespace DupeTimeline {
 
         private static TimelineRingBuffer GetOrCreate(int dupeInstanceId) {
             if (!store.TryGetValue(dupeInstanceId, out var buf)) {
-                buf = new TimelineRingBuffer(capacity);
+                buf = new TimelineRingBuffer(Capacity);
                 store[dupeInstanceId] = buf;
             }
             return buf;
@@ -222,7 +212,7 @@ namespace DupeTimeline {
                 var w = chore.target as Workable;
                 if (w != null) return InstanceIdOf(w.gameObject);
             } catch (Exception e) {
-                PUtil.LogExcWarn(e);
+                Log.Exc(e);
             }
             return -1;
         }

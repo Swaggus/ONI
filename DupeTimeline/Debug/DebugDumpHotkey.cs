@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PeterHan.PLib.Core;
 using UnityEngine;
 
 namespace DupeTimeline.Debug {
@@ -34,7 +33,7 @@ namespace DupeTimeline.Debug {
                         seg.WorkableInstanceId);
                 }
             }
-            PUtil.LogDebug(sb.ToString());
+            Log.Info(sb.ToString());
         }
 
         private static string NameOf(int instanceId) {
