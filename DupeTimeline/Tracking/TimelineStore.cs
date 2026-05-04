@@ -73,6 +73,15 @@ namespace DupeTimeline {
             return store.Keys;
         }
 
+        public static List<TimelineSegment> GetRecent(int dupeInstanceId, int max) {
+            var result = new List<TimelineSegment>();
+            if (!store.TryGetValue(dupeInstanceId, out var buf)) return result;
+            foreach (var seg in buf.InOrder()) result.Add(seg);
+            int drop = result.Count - max;
+            if (drop > 0) result.RemoveRange(0, drop);
+            return result;
+        }
+
         // ---------- Save/load ----------
 
         public static void Restore(int dupeInstanceId, List<SerializedSegment> segments) {

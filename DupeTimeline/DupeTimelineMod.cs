@@ -17,6 +17,7 @@ namespace DupeTimeline {
             pm.RegisterPatchClass(typeof(Patches.WorkablePatches));
             pm.RegisterPatchClass(typeof(Patches.NavigatorPatches));
             pm.RegisterPatchClass(typeof(Patches.MinionConfigPatches));
+            pm.RegisterPatchClass(typeof(UI.DupeTimelineSideScreenPatch));
 
             new POptions().RegisterOptions(this, typeof(DupeTimelineOptions));
         }
