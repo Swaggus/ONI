@@ -1,22 +1,16 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace DupeTimeline.UI {
-    // Fullscreen modal showing the per-dupe Gantt at proper size. Side-screen
-    // is way too narrow for a useful timeline; this opens a centered ~900x420
-    // panel over a dimmer.
+    // Fullscreen modal showing the per-dupe Gantt at proper size. The
+    // side-screen container is way too narrow for a useful timeline; this
+    // opens a centered ~900x420 panel over a dimmer.
     //
-    // Lifecycle:
-    //   DupeTimelineModal.Show(dupeGo) -> creates instance, attaches Update
-    //     for Esc dismissal, builds UI on its own Canvas with a high
-    //     sortingOrder so it draws above all of ONI's UI.
-    //   Hide() or Esc / click on dimmer -> destroys.
-    //
-    // The modal's content polls Refresh every 0.5s while open so the bars
-    // and percentages keep ticking with live data.
+    // Hosted on its own Canvas with sortingOrder=9000 so it draws above
+    // ONI's UI. Esc, the X button, or a click on the dimmer all dismiss.
+    // Refreshes every 0.5s while open so bars/percentages tick live.
     public sealed class DupeTimelineModal : MonoBehaviour {
         private const float SecondsPerCycle = 600f;
         private const int CyclesShown = 3;
@@ -33,9 +27,9 @@ namespace DupeTimeline.UI {
 
         private MinionIdentity target;
         private GameObject ganttStrip;
-        private TextMeshProUGUI titleLabel;
-        private TextMeshProUGUI cycleLabel;
-        private TextMeshProUGUI summaryLabel;
+        private TextMeshProUGUI titleText;
+        private TextMeshProUGUI cycleText;
+        private TextMeshProUGUI summaryText;
         private readonly List<RectTransform> barPool = new List<RectTransform>();
         private float lastRefresh;
 
@@ -51,7 +45,6 @@ namespace DupeTimeline.UI {
                 return;
             }
 
-            // Own canvas so we can stack on top of everything else.
             var rootGo = UICommon.NewChild(canvas.transform, "DupeTimelineModalRoot");
             var modalCanvas = rootGo.AddComponent<Canvas>();
             modalCanvas.overrideSorting = true;
@@ -104,8 +97,8 @@ namespace DupeTimeline.UI {
             dimBtn.transition = Selectable.Transition.None;
             dimBtn.onClick.AddListener(Hide);
 
-            // Centered panel. Click events on the panel are sunk by its own
-            // raycast target so they don't bubble to the dimmer.
+            // Centered panel. Has its own Image which sinks raycasts so
+            // panel-area clicks don't reach the dimmer.
             var panel = UICommon.NewChild(root, "Panel");
             var prt = panel.GetComponent<RectTransform>();
             prt.anchorMin = new Vector2(0.5f, 0.5f);
@@ -115,8 +108,7 @@ namespace DupeTimeline.UI {
             var panelImg = panel.AddComponent<Image>();
             panelImg.sprite = Sprites.White();
             panelImg.color = PanelBg;
-            // Sink clicks so they don't reach the dimmer.
-            panel.AddComponent<EventTrigger>();
+            panelImg.raycastTarget = true;
 
             var vlg = panel.AddComponent<VerticalLayoutGroup>();
             vlg.padding = new RectOffset(0, 0, 0, 16);
@@ -138,14 +130,16 @@ namespace DupeTimeline.UI {
             hle.preferredHeight = 36f;
             hle.flexibleWidth = 1f;
 
-            titleLabel = UICommon.MakeText(header.transform,
-                "Recent Activity", 16f, TextAlignmentOptions.Left);
-            var trt = titleLabel.rectTransform;
+            var titleGo = UICommon.MakeLabel(header.transform,
+                "Recent Activity", TextAnchor.MiddleLeft);
+            titleText = UICommon.TextOf(titleGo);
+            var trt = titleGo.GetComponent<RectTransform>();
             trt.anchorMin = new Vector2(0, 0);
             trt.anchorMax = new Vector2(1, 1);
             trt.offsetMin = new Vector2(16, 0);
             trt.offsetMax = new Vector2(-44, 0);
 
+            // Close X.
             var close = UICommon.NewChild(header.transform, "Close");
             var crt = close.GetComponent<RectTransform>();
             crt.anchorMin = new Vector2(1, 0.5f);
@@ -159,13 +153,13 @@ namespace DupeTimeline.UI {
             var cb = close.AddComponent<Button>();
             cb.targetGraphic = ci;
             cb.onClick.AddListener(Hide);
-            var cTxt = UICommon.MakeText(close.transform, "X", 14f,
-                TextAlignmentOptions.Center);
-            var ctrt = cTxt.rectTransform;
-            ctrt.anchorMin = Vector2.zero;
-            ctrt.anchorMax = Vector2.one;
-            ctrt.offsetMin = Vector2.zero;
-            ctrt.offsetMax = Vector2.zero;
+            var cTxtGo = UICommon.MakeLabel(close.transform, "X",
+                TextAnchor.MiddleCenter);
+            var cTrt = cTxtGo.GetComponent<RectTransform>();
+            cTrt.anchorMin = Vector2.zero;
+            cTrt.anchorMax = Vector2.one;
+            cTrt.offsetMin = Vector2.zero;
+            cTrt.offsetMax = Vector2.zero;
         }
 
         private void BuildBody(Transform parent) {
@@ -178,9 +172,9 @@ namespace DupeTimeline.UI {
             var ble = body.AddComponent<LayoutElement>();
             ble.flexibleWidth = 1f;
 
-            cycleLabel = UICommon.MakeText(body.transform,
-                "Cycle ?", 13f, TextAlignmentOptions.Left);
-            var cle = cycleLabel.gameObject.AddComponent<LayoutElement>();
+            var cycleGo = UICommon.MakeLabel(body.transform, "Cycle ?");
+            cycleText = UICommon.TextOf(cycleGo);
+            var cle = cycleGo.AddComponent<LayoutElement>();
             cle.preferredHeight = 18f;
 
             // Gantt strip
@@ -205,7 +199,7 @@ namespace DupeTimeline.UI {
                 img.color = CycleDivider;
             }
 
-            // Legend
+            // Legend row
             var legend = UICommon.NewChild(body.transform, "Legend");
             var lhlg = legend.AddComponent<HorizontalLayoutGroup>();
             lhlg.spacing = 18f;
@@ -218,9 +212,9 @@ namespace DupeTimeline.UI {
             AddLegendItem(legend.transform, TimelineSegmentKind.Work, "Work");
             AddLegendItem(legend.transform, TimelineSegmentKind.Idle, "Idle");
 
-            summaryLabel = UICommon.MakeText(body.transform,
-                "—", 14f, TextAlignmentOptions.Left);
-            var sle = summaryLabel.gameObject.AddComponent<LayoutElement>();
+            var summaryGo = UICommon.MakeLabel(body.transform, "—");
+            summaryText = UICommon.TextOf(summaryGo);
+            var sle = summaryGo.AddComponent<LayoutElement>();
             sle.preferredHeight = 20f;
         }
 
@@ -240,8 +234,8 @@ namespace DupeTimeline.UI {
             simg.sprite = Sprites.White();
             simg.color = UICommon.ColorOf(kind);
 
-            var lbl = UICommon.MakeText(item.transform, label, 12f);
-            var lble = lbl.gameObject.AddComponent<LayoutElement>();
+            var lbl = UICommon.MakeLabel(item.transform, label);
+            var lble = lbl.AddComponent<LayoutElement>();
             lble.preferredWidth = 60f;
             lble.preferredHeight = 16f;
         }
@@ -262,11 +256,11 @@ namespace DupeTimeline.UI {
             int endCycle = Mathf.FloorToInt(rangeEnd / SecondsPerCycle) + 1;
             int startCycle = endCycle - CyclesShown + 1;
 
-            if (titleLabel != null) {
-                titleLabel.text = target.GetProperName() + " — Recent Activity";
+            if (titleText != null) {
+                titleText.text = target.GetProperName() + " — Recent Activity";
             }
-            if (cycleLabel != null) {
-                cycleLabel.text = startCycle == endCycle
+            if (cycleText != null) {
+                cycleText.text = startCycle == endCycle
                     ? $"Cycle {endCycle}"
                     : $"Cycle {startCycle} - {endCycle}";
             }
@@ -278,11 +272,10 @@ namespace DupeTimeline.UI {
             foreach (var seg in segs) {
                 if (seg.EndTime <= rangeStart) continue;
                 if (seg.StartTime >= rangeEnd) continue;
-
                 float clampedStart = Mathf.Max(seg.StartTime, rangeStart);
                 float clampedEnd = Mathf.Min(seg.EndTime, rangeEnd);
-                float clampedDur = clampedEnd - clampedStart;
-                if (clampedDur <= 0) continue;
+                float dur = clampedEnd - clampedStart;
+                if (dur <= 0) continue;
 
                 float xMin = (clampedStart - rangeStart) / RangeSeconds;
                 float xMax = (clampedEnd - rangeStart) / RangeSeconds;
@@ -296,21 +289,21 @@ namespace DupeTimeline.UI {
                 rt.gameObject.SetActive(true);
                 barIdx++;
 
-                if (seg.Kind == TimelineSegmentKind.Travel) travel += clampedDur;
-                else if (seg.Kind == TimelineSegmentKind.Work) work += clampedDur;
-                totalInRange += clampedDur;
+                if (seg.Kind == TimelineSegmentKind.Travel) travel += dur;
+                else if (seg.Kind == TimelineSegmentKind.Work) work += dur;
+                totalInRange += dur;
             }
 
-            if (summaryLabel != null) {
+            if (summaryText != null) {
                 if (totalInRange <= 0f) {
-                    summaryLabel.text = "No data yet — give the dupe a few minutes to chore.";
+                    summaryText.text = "No data yet — give the dupe a few minutes to chore.";
                 } else {
                     float idleSec = Mathf.Max(0f, RangeSeconds - totalInRange);
                     float denom = totalInRange + idleSec;
                     int pTravel = Mathf.RoundToInt(travel / denom * 100f);
                     int pWork = Mathf.RoundToInt(work / denom * 100f);
                     int pIdle = Mathf.RoundToInt(idleSec / denom * 100f);
-                    summaryLabel.text =
+                    summaryText.text =
                         $"Travel {pTravel}%     Work {pWork}%     Idle {pIdle}%";
                 }
             }
@@ -327,9 +320,6 @@ namespace DupeTimeline.UI {
         }
 
         private static Canvas FindMainCanvas() {
-            // Walk up from DetailsScreen.Instance to its top-most Canvas.
-            // Falls back to any Canvas in the scene if Klei's hierarchy
-            // doesn't have one along that path for whatever reason.
             if (DetailsScreen.Instance != null) {
                 Canvas best = null;
                 var t = DetailsScreen.Instance.transform;

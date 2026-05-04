@@ -1,20 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Build = install. Running `dotnet build -c Release` produces the mod DLL
-    AND copies it into the local ONI mods folder, ready to enable in-game.
+    Build = install. Running `dotnet build -c Release` (or build.bat):
+      1. compiles DupeTimeline.dll against the local ONI install,
+      2. ILRepacks PeterHan's PLib into the same DLL (so we ship a
+         single DLL, no separate PLib.dll alongside),
+      3. copies DupeTimeline.dll + mod.yaml + mod_info.yaml into
+         %USERPROFILE%\Documents\Klei\OxygenNotIncluded\mods\Local\DupeTimeline.
 
-    Auto-detected paths (Windows):
-      Game DLLs:  <Steam>\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\
-      Mods folder: %USERPROFILE%\Documents\Klei\OxygenNotIncluded\mods\Local\DupeTimeline\
-
-    If your install lives somewhere else, override:
-      dotnet build -c Release -p:GameFolder="D:\Games\ONI\OxygenNotIncluded_Data\Managed"
-      dotnet build -c Release -p:ModInstallFolder="C:\custom\mods\path"
-      dotnet build -c Release -p:CopyToMods=false   # build only, no install
-
-    Linux/Mac with Steam Proton: set GameFolder to the .../drive_c/... path inside
-    the Steam install. CopyToMods=false is recommended; copy the DLL manually.
+    Override the auto-detected paths with:
+      dotnet build -c Release -p:GameFolder="D:\..\OxygenNotIncluded_Data\Managed"
+      dotnet build -c Release -p:CopyToMods=false   (build only, no install)
   -->
 
   <PropertyGroup>
@@ -26,7 +22,6 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-    <!-- Auto-detect game install. First match wins. -->
     <GameFolder Condition="'$(GameFolder)' == '' AND Exists('$(MSBuildProgramFiles32)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">$(MSBuildProgramFiles32)\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
     <GameFolder Condition="'$(GameFolder)' == '' AND Exists('C:\Program Files\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">C:\Program Files\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
     <GameFolder Condition="'$(GameFolder)' == '' AND Exists('D:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed')">D:\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed</GameFolder>
@@ -88,13 +83,20 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
   </ItemGroup>
 
   <ItemGroup>
-    <!--
-      Provides .NET Framework 4.8 reference assemblies via NuGet so the
-      build doesn't require the .NET Framework 4.8 Developer Pack to be
-      installed locally. Pure build-time dep, never shipped.
-    -->
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
       <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!--
+      PLib is bundled into our DLL via ILRepack below. Private=true so
+      MSBuild copies PLib.dll into the output directory; ILRepack reads
+      it from there and merges it into DupeTimeline.dll, after which we
+      delete the standalone PLib.dll.
+    -->
+    <PackageReference Include="PLib" Version="4.24.0" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.40" PrivateAssets="all">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
@@ -104,7 +106,23 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
     <None Include="mod_info.yaml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <Target Name="InstallToMods" AfterTargets="Build" Condition="'$(CopyToMods)' != 'false'">
+  <Target Name="ILRepacker" AfterTargets="Build">
+    <ItemGroup>
+      <ILRepackInputs Include="$(TargetPath)" />
+      <ILRepackInputs Include="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
+    </ItemGroup>
+    <ILRepack
+      Parallel="true"
+      Internalize="true"
+      InputAssemblies="@(ILRepackInputs)"
+      OutputFile="$(TargetPath)"
+      Condition="'@(ILRepackInputs->Count())' &gt; '1'"
+    />
+    <Delete Files="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
+    <Message Importance="high" Text="ILRepacked PLib into $(TargetPath)" />
+  </Target>
+
+  <Target Name="InstallToMods" AfterTargets="ILRepacker" Condition="'$(CopyToMods)' != 'false'">
     <MakeDir Directories="$(ModInstallFolder)" />
     <Copy SourceFiles="$(TargetPath);$(MSBuildThisFileDirectory)mod.yaml;$(MSBuildThisFileDirectory)mod_info.yaml"
           DestinationFolder="$(ModInstallFolder)"

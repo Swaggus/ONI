@@ -1,5 +1,6 @@
 using HarmonyLib;
 using KMod;
+using PeterHan.PLib.Core;
 using UnityEngine;
 
 namespace DupeTimeline {
@@ -7,18 +8,16 @@ namespace DupeTimeline {
         public override void OnLoad(Harmony harmony) {
             base.OnLoad(harmony);
             Log.Info("Loading");
+            // PLib is ILRepacked into our DLL with all types internalized.
+            // PUtil.InitLibrary boots the registry, sets up shared services,
+            // and is safe to call multiple times.
+            PUtil.InitLibrary();
             harmony.PatchAll(typeof(DupeTimelineMod).Assembly);
         }
     }
 
-    // Patches Game.OnSpawn so we can reset the in-memory store for each new
-    // save (and tear down the debug-hotkey GameObject from the previous save
-    // if there was one). Replaces what PLib's [PLibMethod(RunAt.OnStartGame)]
-    // would have done — keeps PLib out of the dependency tree.
-    //
-    // Game.OnSpawn / OnDestroy are protected, so the Harmony attribute uses
-    // string literals instead of nameof() (nameof can't reference symbols
-    // that are inaccessible from this assembly).
+    // Patches Game.OnSpawn / OnDestroy via string literals because the
+    // methods are protected and inaccessible from this assembly's namespace.
     [HarmonyPatch(typeof(Game), "OnSpawn")]
     internal static class Game_OnSpawn_Patch {
         private static GameObject debugGo;

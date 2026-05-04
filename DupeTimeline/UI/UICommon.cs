@@ -1,17 +1,16 @@
-using System.Linq;
+using PeterHan.PLib.UI;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace DupeTimeline.UI {
-    // Shared UI helpers reused between the side-screen panel and the modal.
-    // - Fonts.Default: borrows a TMP_FontAsset from anything Klei has loaded
-    //   so our text actually renders. Without this, fresh TextMeshProUGUI
-    //   components have no font and draw nothing.
-    // - Sprites.White: a 1x1 white sprite shared across all colored rects.
-    // - MakeText: TextMeshProUGUI with NoWrap and a sane default font.
-    // - MakeButton: clickable Image + TextMeshProUGUI label.
-    // - NewChild: bare GameObject + RectTransform under a parent.
+    // Shared UI helpers. After ILRepack folds PLib into our DLL, we use
+    // PLib's PLabel/PButton/PUITuning so text picks up Klei's curated
+    // fonts and colors instead of trying to derive them from raw
+    // TextMeshProUGUI components (which look unstyled and wrap badly).
+    //
+    // PLabel/PButton return GameObjects with a child LocText/Button already
+    // wired up. To mutate the text on refresh, find the TMP_Text via
+    // TextOf(go).
     internal static class UICommon {
         public static GameObject NewChild(Transform parent, string name) {
             var go = new GameObject(name, typeof(RectTransform));
@@ -19,48 +18,36 @@ namespace DupeTimeline.UI {
             return go;
         }
 
-        public static TextMeshProUGUI MakeText(Transform parent, string content,
-                float size, TextAlignmentOptions align = TextAlignmentOptions.Left) {
-            var go = NewChild(parent, "Text");
-            var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.text = content;
-            tmp.fontSize = size;
-            tmp.color = Color.white;
-            tmp.alignment = align;
-            tmp.textWrappingMode = TextWrappingModes.NoWrap;
-            tmp.overflowMode = TextOverflowModes.Ellipsis;
-            var font = Fonts.Default();
-            if (font != null) tmp.font = font;
-            return tmp;
+        public static GameObject MakeLabel(Transform parent, string text,
+                TextAnchor align = TextAnchor.MiddleLeft) {
+            var label = new PLabel("Label") {
+                Text = text,
+                TextStyle = PUITuning.Fonts.UILightStyle,
+                TextAlignment = align,
+            };
+            var go = label.Build();
+            go.transform.SetParent(parent, false);
+            return go;
         }
 
-        public static Button MakeButton(Transform parent, string label,
-                System.Action onClick, float height = 28f) {
-            var go = NewChild(parent, "Button");
-            var img = go.AddComponent<Image>();
-            img.sprite = Sprites.White();
-            img.color = new Color(0.27f, 0.32f, 0.42f, 1f);
-            var btn = go.AddComponent<Button>();
-            btn.targetGraphic = img;
-            var colors = btn.colors;
-            colors.normalColor = new Color(0.27f, 0.32f, 0.42f, 1f);
-            colors.highlightedColor = new Color(0.36f, 0.42f, 0.55f, 1f);
-            colors.pressedColor = new Color(0.20f, 0.24f, 0.32f, 1f);
-            colors.selectedColor = colors.highlightedColor;
-            btn.colors = colors;
-            if (onClick != null) btn.onClick.AddListener(() => onClick());
+        public static GameObject MakeButton(Transform parent, string label,
+                System.Action onClick) {
+            var btn = new PButton("Button") {
+                Text = label,
+                OnClick = _ => {
+                    try { onClick?.Invoke(); }
+                    catch (System.Exception e) { Log.Exc(e); }
+                },
+            }.SetKleiBlueStyle();
+            var go = btn.Build();
+            go.transform.SetParent(parent, false);
+            return go;
+        }
 
-            var labelTmp = MakeText(go.transform, label, 12f, TextAlignmentOptions.Center);
-            var lrt = labelTmp.rectTransform;
-            lrt.anchorMin = Vector2.zero;
-            lrt.anchorMax = Vector2.one;
-            lrt.offsetMin = new Vector2(8, 0);
-            lrt.offsetMax = new Vector2(-8, 0);
-
-            var le = go.AddComponent<LayoutElement>();
-            le.preferredHeight = height;
-            le.flexibleWidth = 1f;
-            return btn;
+        public static TextMeshProUGUI TextOf(GameObject labelGo) {
+            return labelGo != null
+                ? labelGo.GetComponentInChildren<TextMeshProUGUI>()
+                : null;
         }
 
         public static Color ColorOf(TimelineSegmentKind kind) {
@@ -69,19 +56,6 @@ namespace DupeTimeline.UI {
                 case TimelineSegmentKind.Work:   return new Color(0.32f, 0.78f, 0.32f, 1f);
                 default:                          return new Color(0.45f, 0.45f, 0.45f, 1f);
             }
-        }
-    }
-
-    internal static class Fonts {
-        private static TMP_FontAsset cached;
-
-        public static TMP_FontAsset Default() {
-            if (cached != null) return cached;
-            cached = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault();
-            if (cached == null) {
-                Log.Warn("could not locate TMP_FontAsset; text labels will not render");
-            }
-            return cached;
         }
     }
 
