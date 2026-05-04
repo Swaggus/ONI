@@ -1,0 +1,139 @@
+﻿msgid ""
+msgstr ""
+"Application: Oxygen Not Included\n"
+"POT Version: 2.0\n"
+
+#. ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_LONG
+msgctxt "ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_LONG"
+msgid "Numbers of cycles to keep more than 100 cycles may impact perf on extreme situation like modded sim speed (tested for x3) or late game with many planets."
+msgstr "超过100周期可能影响性能。"
+
+#. ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_SHORT
+msgctxt "ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_SHORT"
+msgid "History (cycles) >100 may impact perf"
+msgstr "历史>100影响性能"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO"
+msgid "Hide 0"
+msgstr "隐藏0"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO_ON
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO_ON"
+msgid "Hide 0 ✓"
+msgstr "隐藏0[开]"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_DELTA
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_DELTA"
+msgid "Δ"
+msgstr "变化"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_NAME
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_NAME"
+msgid "Name"
+msgstr "名称"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_VALUE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_VALUE"
+msgid "Val"
+msgstr "数值"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_LABEL
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_LABEL"
+msgid "Dashboard"
+msgstr "资源"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_TOOLTIP
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_TOOLTIP"
+msgid "Open Resources Dashboard"
+msgstr "打开资源面板"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_100C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_100C"
+msgid "Delta 100c"
+msgstr "100周期"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_10C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_10C"
+msgid "Delta 10c"
+msgstr "10周期"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_1C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_1C"
+msgid "Delta 1c"
+msgstr "1周期"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_60S
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_60S"
+msgid "Delta 60s"
+msgstr "60秒"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_NONE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_NONE"
+msgid "Select a resource to display its graph."
+msgstr "选择资源看图表"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_SELECTED
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_SELECTED"
+msgid "Hover: value   Wheel: zoom   Drag: pan"
+msgstr "滚轮缩放  拖动移动"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_GRAPHVIEW_HASDATA
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_GRAPHVIEW_HASDATA"
+msgid "Mouse wheel: zoom   Drag: pan"
+msgstr "滚轮缩放  拖动移动"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HOVER_FORMAT
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HOVER_FORMAT"
+msgid "Cycle {0:F1}\n{1:F2}"
+msgstr "周期 {0:F1}\n{1:F2}"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NO_SELECTION
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NO_SELECTION"
+msgid "No selection"
+msgstr "未选"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NOT_ENOUGH_DATA
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NOT_ENOUGH_DATA"
+msgid "Not enough data yet."
+msgstr "数据不足"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECT_RESOURCE_TO_VIEW
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECT_RESOURCE_TO_VIEW"
+msgid "Select a resource to view its graph."
+msgstr "选择资源查看"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECTED_FALLBACK
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECTED_FALLBACK"
+msgid "Selected"
+msgstr "已选"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.PINNED_HEADER
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.PINNED_HEADER"
+msgid "Pinned ({0})"
+msgstr "固定({0})"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_100C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_100C"
+msgid "100c"
+msgstr "100周期"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_10C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_10C"
+msgid "10c"
+msgstr "10周期"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_60S
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_60S"
+msgid "60s"
+msgstr "60秒"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_CYCLE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_CYCLE"
+msgid "c"
+msgstr "周期"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.TITLE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.TITLE"
+msgid "Resource Dashboard"
+msgstr "资源面板"

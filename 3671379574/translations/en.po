@@ -1,0 +1,77 @@
+﻿msgid "STRINGS.UI.RESOURCEDASHBOARD.TITLE"
+msgstr "Resource Dashboard"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO"
+msgstr "Hide 0"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO_ON"
+msgstr "Hide 0 ✓"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.COL_NAME"
+msgstr "Name"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.COL_VALUE"
+msgstr "Val"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.COL_DELTA"
+msgstr "Δ"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.DELTA_60S"
+msgstr "Delta 60s"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.DELTA_1C"
+msgstr "Delta 1c"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.DELTA_10C"
+msgstr "Delta 10c"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.DELTA_100C"
+msgstr "Delta 100c"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.PINNED_HEADER"
+msgstr "Pinned ({0})"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NO_SELECTION"
+msgstr "No selection"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_NONE"
+msgstr "Select a resource to display its graph."
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_SELECTED"
+msgstr "Hover: value   Wheel: zoom   Drag: pan"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECTED_FALLBACK"
+msgstr "Selected"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECT_RESOURCE_TO_VIEW"
+msgstr "Select a resource to view its graph."
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_GRAPHVIEW_HASDATA"
+msgstr "Mouse wheel: zoom   Drag: pan"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NOT_ENOUGH_DATA"
+msgstr "Not enough data yet."
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_LABEL"
+msgstr "Dashboard"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_TOOLTIP"
+msgstr "Open Resources Dashboard"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_60S"
+msgstr "60s"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_CYCLE"
+msgstr "c"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_10C"
+msgstr "10c"
+
+msgid "STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_100C"
+msgstr "100c"
+
+msgid "STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_SHORT"
+msgstr "History (cycles) >100 may impact perf"
+
+msgid "STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_LONG"
+msgstr "Numbers of cycles to keep more than 100 cycles may impact perf on extreme situation like modded sim speed (tested for x3) or late game with many planets."

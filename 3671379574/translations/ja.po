@@ -1,0 +1,139 @@
+﻿msgid ""
+msgstr ""
+"Application: Oxygen Not Included\n"
+"POT Version: 2.0\n"
+
+#. ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_LONG
+msgctxt "ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_LONG"
+msgid "Numbers of cycles to keep more than 100 cycles may impact perf on extreme situation like modded sim speed (tested for x3) or late game with many planets."
+msgstr "100サイクル超で性能に影響する可能性があります。"
+
+#. ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_SHORT
+msgctxt "ResourceDashboard.STRINGS.OPTIONS.RESOURCEDASHBOARD.HISTORY_WARNING_SHORT"
+msgid "History (cycles) >100 may impact perf"
+msgstr "履歴>100で性能低下"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO"
+msgid "Hide 0"
+msgstr "0非表示"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO_ON
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.BTN_HIDE_ZERO_ON"
+msgid "Hide 0 ✓"
+msgstr "0非表示[ON]"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_DELTA
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_DELTA"
+msgid "Δ"
+msgstr "変化"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_NAME
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_NAME"
+msgid "Name"
+msgstr "名前"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_VALUE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.COL_VALUE"
+msgid "Val"
+msgstr "値"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_LABEL
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_LABEL"
+msgid "Dashboard"
+msgstr "資源"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_TOOLTIP
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DASHBOARD_BUTTON_TOOLTIP"
+msgid "Open Resources Dashboard"
+msgstr "資源パネルを開く"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_100C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_100C"
+msgid "Delta 100c"
+msgstr "100サイクル"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_10C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_10C"
+msgid "Delta 10c"
+msgstr "10サイクル"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_1C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_1C"
+msgid "Delta 1c"
+msgstr "1サイクル"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_60S
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.DELTA_60S"
+msgid "Delta 60s"
+msgstr "60秒"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_NONE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_NONE"
+msgid "Select a resource to display its graph."
+msgstr "資源を選択"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_SELECTED
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_DASHBOARD_SELECTED"
+msgid "Hover: value   Wheel: zoom   Drag: pan"
+msgstr "ホイール:ズーム  ドラッグ:移動"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_GRAPHVIEW_HASDATA
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HINT_GRAPHVIEW_HASDATA"
+msgid "Mouse wheel: zoom   Drag: pan"
+msgstr "ホイール:ズーム  ドラッグ:移動"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HOVER_FORMAT
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_HOVER_FORMAT"
+msgid "Cycle {0:F1}\n{1:F2}"
+msgstr "サイクル {0:F1}\n{1:F2}"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NO_SELECTION
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NO_SELECTION"
+msgid "No selection"
+msgstr "未選択"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NOT_ENOUGH_DATA
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_NOT_ENOUGH_DATA"
+msgid "Not enough data yet."
+msgstr "データ不足"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECT_RESOURCE_TO_VIEW
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECT_RESOURCE_TO_VIEW"
+msgid "Select a resource to view its graph."
+msgstr "資源を選択"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECTED_FALLBACK
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.GRAPH_SELECTED_FALLBACK"
+msgid "Selected"
+msgstr "選択"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.PINNED_HEADER
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.PINNED_HEADER"
+msgid "Pinned ({0})"
+msgstr "固定({0})"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_100C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_100C"
+msgid "100c"
+msgstr "100サイクル"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_10C
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_10C"
+msgid "10c"
+msgstr "10サイクル"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_60S
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_60S"
+msgid "60s"
+msgstr "60秒"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_CYCLE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.SUFFIX_CYCLE"
+msgid "c"
+msgstr "サイクル"
+
+#. ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.TITLE
+msgctxt "ResourceDashboard.STRINGS.UI.RESOURCEDASHBOARD.TITLE"
+msgid "Resource Dashboard"
+msgstr "資源パネル"
