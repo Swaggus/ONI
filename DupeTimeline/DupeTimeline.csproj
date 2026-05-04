@@ -80,6 +80,10 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
       <HintPath>$(GameFolder)\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(GameFolder)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -88,15 +92,16 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <!--
-      PLib is bundled into our DLL via ILRepack below. Private=true so
-      MSBuild copies PLib.dll into the output directory; ILRepack reads
-      it from there and merges it into DupeTimeline.dll, after which we
-      delete the standalone PLib.dll.
+      PLib is bundled into our DLL via ILRepack below. PrivateAssets=all
+      keeps it out of any consumers; IncludeAssets is left at the default
+      (all) so the compiler sees PLib types and PLib.dll lands in the
+      output directory for ILRepack to merge.
     -->
-    <PackageReference Include="PLib" Version="4.24.0" PrivateAssets="all">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PackageReference Include="PLib" Version="4.24.0">
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.40" PrivateAssets="all">
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.40">
+      <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
