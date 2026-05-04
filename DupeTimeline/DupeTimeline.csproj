@@ -111,26 +111,50 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
     <None Include="mod_info.yaml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!--
+    ILRepack's default Mono.Cecil resolver looks for referenced assemblies
+    in the same directory as the input DLL. We're not redistributing game
+    DLLs, but ILRepack does need to *resolve* them (read their metadata)
+    while merging — otherwise it can't follow type references inside our
+    DLL or PLib's. So we copy the needed game DLLs into TargetDir for the
+    duration of the merge, then delete them right after.
+
+    The LibraryPath parameter on the ILRepack task is unreliable across
+    versions of this NuGet package; copy-and-delete avoids the question.
+  -->
+  <ItemGroup>
+    <ILRepackResolveDeps Include="Assembly-CSharp.dll" />
+    <ILRepackResolveDeps Include="Assembly-CSharp-firstpass.dll" />
+    <ILRepackResolveDeps Include="0Harmony.dll" />
+    <ILRepackResolveDeps Include="UnityEngine.dll" />
+    <ILRepackResolveDeps Include="UnityEngine.CoreModule.dll" />
+    <ILRepackResolveDeps Include="UnityEngine.UI.dll" />
+    <ILRepackResolveDeps Include="UnityEngine.UIModule.dll" />
+    <ILRepackResolveDeps Include="UnityEngine.InputLegacyModule.dll" />
+    <ILRepackResolveDeps Include="UnityEngine.TextRenderingModule.dll" />
+    <ILRepackResolveDeps Include="Unity.TextMeshPro.dll" />
+  </ItemGroup>
+
+  <Target Name="ILRepackerStageDeps" BeforeTargets="ILRepacker">
+    <Copy SourceFiles="@(ILRepackResolveDeps -> '$(GameFolder)\%(Identity)')"
+          DestinationFolder="$(TargetDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
   <Target Name="ILRepacker" AfterTargets="Build">
     <ItemGroup>
       <ILRepackInputs Include="$(TargetPath)" />
       <ILRepackInputs Include="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
     </ItemGroup>
-    <!--
-      LibraryPath tells ILRepack where to resolve referenced assemblies
-      (Assembly-CSharp, Unity engine modules, etc.) that aren't in the
-      input set. Without this it can't follow type references inside our
-      DLL or PLib's, and the merge fails with "Failed to resolve assembly".
-    -->
     <ILRepack
       Parallel="true"
       Internalize="true"
       InputAssemblies="@(ILRepackInputs)"
       OutputFile="$(TargetPath)"
-      LibraryPath="$(GameFolder);$(TargetDir)"
       Condition="'@(ILRepackInputs->Count())' &gt; '1'"
     />
     <Delete Files="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
+    <Delete Files="@(ILRepackResolveDeps -> '$(TargetDir)%(Identity)')" />
     <Message Importance="high" Text="ILRepacked PLib into $(TargetPath)" />
   </Target>
 
