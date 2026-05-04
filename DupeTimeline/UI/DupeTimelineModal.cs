@@ -330,7 +330,7 @@ namespace DupeTimeline.UI {
                 }
                 if (best != null) return best;
             }
-            return Object.FindObjectOfType<Canvas>();
+            return Object.FindAnyObjectByType<Canvas>();
         }
     }
 }

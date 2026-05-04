@@ -116,11 +116,18 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
       <ILRepackInputs Include="$(TargetPath)" />
       <ILRepackInputs Include="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
     </ItemGroup>
+    <!--
+      LibraryPath tells ILRepack where to resolve referenced assemblies
+      (Assembly-CSharp, Unity engine modules, etc.) that aren't in the
+      input set. Without this it can't follow type references inside our
+      DLL or PLib's, and the merge fails with "Failed to resolve assembly".
+    -->
     <ILRepack
       Parallel="true"
       Internalize="true"
       InputAssemblies="@(ILRepackInputs)"
       OutputFile="$(TargetPath)"
+      LibraryPath="$(GameFolder);$(TargetDir)"
       Condition="'@(ILRepackInputs->Count())' &gt; '1'"
     />
     <Delete Files="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
