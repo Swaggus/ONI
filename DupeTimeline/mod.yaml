@@ -1,6 +1,10 @@
 title: "Dupe Activity Timeline"
 description: |
-  Per-duplicant Gantt-style activity timeline. Tracks what each dupe did
-  across each cycle: chore type, target, work time vs travel time. Useful
-  for spotting wasted travel, bad assignments, and chronic interruptions.
+  Per-duplicant Gantt-style activity timeline. Adds a "Recent Activity"
+  panel to the duplicant info side-screen showing the last 3 cycles of
+  work as proportional colored bars: amber for travel, green for work,
+  gray for idle. Hover/select a dupe and you can see at a glance how
+  much time they're losing to travel and how often they're getting
+  interrupted. Useful for spotting wasted commute, bad assignments,
+  and priority churn.
 staticID: DupeTimeline

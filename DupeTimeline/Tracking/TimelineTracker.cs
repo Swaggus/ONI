@@ -45,7 +45,9 @@ namespace DupeTimeline {
         [Serialize] public int Kind;
         [Serialize] public string ChoreGuid;
         [Serialize] public string ChoreTypeId;
+        [Serialize] public string ChoreTypeName;
         [Serialize] public int WorkableInstanceId;
+        [Serialize] public string WorkableName;
         [Serialize] public int TargetCell;
     }
 }

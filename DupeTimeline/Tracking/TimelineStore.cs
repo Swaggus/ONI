@@ -18,13 +18,31 @@ namespace DupeTimeline {
     //                            |       +-- WorkStopped/Completed -->
     //                            |             close Work, open Travel
     //                            |             (loop -> may see another
-    //                            |              WorkStarted in the same chore)
+    //                            |              WorkStarted in the same chore;
+    //                            |              this is the build-chore case
+    //                            |              where the dupe ferries materials
+    //                            |              between fetches and placements)
     //                            |
     //                            +-- OnChoreEnd --> close current segment,
     //                                              dupe is idle
     //
     // A chore with no Workable target (mingle, idle move) stays in its
     // initial Travel segment for the entire chore.
+    //
+    // Audited edge cases:
+    //   - Multi-bout build chores (work, fetch, work): each WorkStarted opens
+    //     a new Work segment; intervening Travels are recorded.
+    //   - Cancelled chore mid-work (no WorkStopped event): OnChoreEnd flushes
+    //     whatever segment kind is open and removes the workerByWorkable
+    //     entry defensively.
+    //   - Two dupes on the same workable (rare): workerByWorkable is 1:1, the
+    //     second WorkStarted overwrites; the first dupe's Work segment closes
+    //     at OnChoreEnd instead of WorkStopped. Slight time inflation; not a
+    //     correctness issue for v1.
+    //   - Travel segment after WorkStopped retains the chore's primary
+    //     workable id (e.g. build site) even though the dupe might be
+    //     pathing to a storage bin — we report the chore's target, not
+    //     the navigator's current destination.
     public static class TimelineStore {
         // ~3 cycles for a busy dupe.
         private const int Capacity = 210;
@@ -41,7 +59,9 @@ namespace DupeTimeline {
         private struct OpenChore {
             public string Guid;
             public string ChoreTypeId;
+            public string ChoreTypeName;
             public int WorkableInstanceId;   // -1 if none
+            public string WorkableName;
             public int TargetCell;            // -1 if unknown
             public float SegmentStartTime;
             public TimelineSegmentKind SegmentKind;
@@ -85,7 +105,9 @@ namespace DupeTimeline {
                     Kind = (TimelineSegmentKind)s.Kind,
                     ChoreGuid = s.ChoreGuid,
                     ChoreTypeId = s.ChoreTypeId,
+                    ChoreTypeName = s.ChoreTypeName,
                     WorkableInstanceId = s.WorkableInstanceId,
+                    WorkableName = s.WorkableName,
                     TargetCell = s.TargetCell,
                 });
             }
@@ -101,7 +123,9 @@ namespace DupeTimeline {
                     Kind = (int)seg.Kind,
                     ChoreGuid = seg.ChoreGuid,
                     ChoreTypeId = seg.ChoreTypeId,
+                    ChoreTypeName = seg.ChoreTypeName,
                     WorkableInstanceId = seg.WorkableInstanceId,
+                    WorkableName = seg.WorkableName,
                     TargetCell = seg.TargetCell,
                 });
             }
@@ -113,16 +137,18 @@ namespace DupeTimeline {
         public static void OnChoreStart(int dupeInstanceId, Chore chore) {
             if (chore == null) return;
             var now = Now();
+            var workable = chore.target as Workable;
+
             var open = new OpenChore {
                 Guid = Guid.NewGuid().ToString("N"),
                 ChoreTypeId = chore.choreType?.Id,
-                WorkableInstanceId = WorkableInstanceIdFor(chore),
-                TargetCell = TargetCellFor(chore),
+                ChoreTypeName = chore.choreType?.Name ?? chore.choreType?.Id,
+                WorkableInstanceId = workable != null ? InstanceIdOf(workable.gameObject) : -1,
+                WorkableName = ResolveName(workable),
+                TargetCell = -1,
                 SegmentStartTime = now,
                 SegmentKind = TimelineSegmentKind.Travel,
             };
-            // If a previous chore wasn't closed cleanly (interrupt / save-load
-            // race), flush whatever is open before we overwrite.
             if (inflight.TryGetValue(dupeInstanceId, out var prev)) {
                 FlushOpenSegment(dupeInstanceId, prev, now);
             }
@@ -130,6 +156,7 @@ namespace DupeTimeline {
         }
 
         public static void OnChoreEnd(int dupeInstanceId, Chore chore) {
+            _ = chore;
             if (!inflight.TryGetValue(dupeInstanceId, out var open)) return;
             FlushOpenSegment(dupeInstanceId, open, Now());
             inflight.Remove(dupeInstanceId);
@@ -147,7 +174,7 @@ namespace DupeTimeline {
                 var dupeId = InstanceIdOf(worker.gameObject);
                 var workableId = InstanceIdOf(w.gameObject);
                 workerByWorkable[workableId] = dupeId;
-                TransitionTo(dupeId, TimelineSegmentKind.Work, workableId);
+                TransitionTo(dupeId, TimelineSegmentKind.Work, workableId, ResolveName(w));
                 return;
             }
 
@@ -157,14 +184,12 @@ namespace DupeTimeline {
                 return;
             }
             workerByWorkable.Remove(workableInstanceId);
-            TransitionTo(stoppedDupe, TimelineSegmentKind.Travel, -1);
+            TransitionTo(stoppedDupe, TimelineSegmentKind.Travel, -1, null);
         }
 
         public static void OnNavigatorStop(int dupeInstanceId, bool arrived) {
-            // Optional: for non-Workable chores this is the only "arrived"
-            // signal we get. For workable chores it fires before WorkStarted
-            // so we don't need to act on it. Leaving as a no-op for the
-            // skeleton; revisit when we add idle/mingle support.
+            // No-op for v1. Reserved for non-Workable chores (mingle, idle
+            // moves, schedule transitions) where Hook B doesn't fire.
             _ = dupeInstanceId;
             _ = arrived;
         }
@@ -172,29 +197,33 @@ namespace DupeTimeline {
         // ---------- Internals ----------
 
         private static void TransitionTo(int dupeInstanceId,
-                TimelineSegmentKind newKind, int newWorkableId) {
+                TimelineSegmentKind newKind, int newWorkableId, string newWorkableName) {
             if (!inflight.TryGetValue(dupeInstanceId, out var open)) return;
             var now = Now();
             FlushOpenSegment(dupeInstanceId, open, now);
             open.SegmentStartTime = now;
             open.SegmentKind = newKind;
-            if (newWorkableId >= 0) open.WorkableInstanceId = newWorkableId;
+            if (newWorkableId >= 0) {
+                open.WorkableInstanceId = newWorkableId;
+                open.WorkableName = newWorkableName;
+            }
             inflight[dupeInstanceId] = open;
         }
 
         private static void FlushOpenSegment(int dupeInstanceId,
                 OpenChore open, float endTime) {
             if (endTime <= open.SegmentStartTime) return;
-            var seg = new TimelineSegment {
+            GetOrCreate(dupeInstanceId).Add(new TimelineSegment {
                 StartTime = open.SegmentStartTime,
                 EndTime = endTime,
                 Kind = open.SegmentKind,
                 ChoreGuid = open.Guid,
                 ChoreTypeId = open.ChoreTypeId,
+                ChoreTypeName = open.ChoreTypeName,
                 WorkableInstanceId = open.WorkableInstanceId,
+                WorkableName = open.WorkableName,
                 TargetCell = open.TargetCell,
-            };
-            GetOrCreate(dupeInstanceId).Add(seg);
+            });
         }
 
         private static TimelineRingBuffer GetOrCreate(int dupeInstanceId) {
@@ -205,24 +234,14 @@ namespace DupeTimeline {
             return buf;
         }
 
-        private static int WorkableInstanceIdFor(Chore chore) {
-            // chore.target is an IStateMachineTarget; many chores point at a
-            // Workable directly. Read via its GameObject when available.
-            try {
-                var w = chore.target as Workable;
-                if (w != null) return InstanceIdOf(w.gameObject);
-            } catch (Exception e) {
-                Log.Exc(e);
+        private static string ResolveName(Workable w) {
+            if (w == null) return null;
+            var sel = w.GetComponent<KSelectable>();
+            if (sel != null) {
+                var name = sel.GetName();
+                if (!string.IsNullOrEmpty(name)) return name;
             }
-            return -1;
-        }
-
-        private static int TargetCellFor(Chore chore) {
-            // Chore.destination exists on FetchChore and a few other subclasses.
-            // For the skeleton, return -1 — we'll resolve target cells later
-            // from chore-subclass-specific fields.
-            _ = chore;
-            return -1;
+            return w.name;
         }
 
         private static int InstanceIdOf(UnityEngine.GameObject go) {

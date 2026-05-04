@@ -17,7 +17,7 @@ namespace DupeTimeline.Patches {
         public static class MinionConfig_OnSpawn_Patch {
             internal static void Postfix(GameObject go) {
                 if (go == null) return;
-                go.AddOrGet<TimelineTracker>();
+                Safe.Run(() => go.AddOrGet<TimelineTracker>());
             }
         }
     }

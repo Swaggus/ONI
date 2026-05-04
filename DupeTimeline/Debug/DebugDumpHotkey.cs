@@ -4,9 +4,8 @@ using System.Text;
 using UnityEngine;
 
 namespace DupeTimeline.Debug {
-    // F10: dump every dupe's recent timeline to Player.log so the mod is
-    // testable before the side-screen UI lands. Crude but verifies that the
-    // four hooks are firing and producing sensible data.
+    // F10: dump every dupe's recent timeline to Player.log. Useful sanity
+    // check before / instead of the side-screen UI.
     public sealed class DebugDumpHotkey : MonoBehaviour {
         private void Update() {
             if (Input.GetKeyDown(KeyCode.F10)) {
@@ -23,14 +22,14 @@ namespace DupeTimeline.Debug {
                 var segments = TimelineStore.GetTimeline(dupeId).ToList();
                 sb.AppendFormat("[{0} (id {1})] {2} segments\n",
                     name, dupeId, segments.Count);
-                foreach (var seg in segments.TakeLast(20)) {
-                    sb.AppendFormat("  {0,-6} {1,8:F1}-{2,-8:F1} ({3,5:F1}s) chore={4} workable={5}\n",
+                int start = System.Math.Max(0, segments.Count - 20);
+                for (int i = start; i < segments.Count; i++) {
+                    var seg = segments[i];
+                    sb.AppendFormat("  {0,-6} {1,5:F1}s  {2,-22} {3}\n",
                         seg.Kind,
-                        seg.StartTime,
-                        seg.EndTime,
                         seg.Duration,
-                        seg.ChoreTypeId ?? "?",
-                        seg.WorkableInstanceId);
+                        seg.ChoreTypeName ?? seg.ChoreTypeId ?? "?",
+                        seg.WorkableName ?? "");
                 }
             }
             Log.Info(sb.ToString());
@@ -46,14 +45,6 @@ namespace DupeTimeline.Debug {
                 }
             }
             return "?";
-        }
-    }
-
-    internal static class EnumerableExtensions {
-        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n) {
-            var list = source as IList<T> ?? source.ToList();
-            int start = System.Math.Max(0, list.Count - n);
-            for (int i = start; i < list.Count; i++) yield return list[i];
         }
     }
 }

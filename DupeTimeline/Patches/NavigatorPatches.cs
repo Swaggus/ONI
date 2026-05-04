@@ -12,9 +12,11 @@ namespace DupeTimeline.Patches {
         public static class Navigator_Stop_Patch {
             internal static void Postfix(Navigator __instance, bool arrived_at_destination) {
                 if (__instance == null) return;
-                var id = __instance.GetComponent<KPrefabID>();
-                if (id == null) return;
-                TimelineStore.OnNavigatorStop(id.InstanceID, arrived_at_destination);
+                Safe.Run(() => {
+                    var id = __instance.GetComponent<KPrefabID>();
+                    if (id == null) return;
+                    TimelineStore.OnNavigatorStop(id.InstanceID, arrived_at_destination);
+                });
             }
         }
     }

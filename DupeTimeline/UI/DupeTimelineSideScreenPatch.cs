@@ -18,12 +18,16 @@ namespace DupeTimeline.UI {
         [HarmonyPatch(typeof(DetailsScreen), "OnPrefabInit")]
         public static class DetailsScreen_OnPrefabInit_Patch {
             internal static void Postfix(DetailsScreen __instance) {
+                Safe.Run(() => Register(__instance));
+            }
+
+            private static void Register(DetailsScreen detailsScreen) {
                 var sideScreensField = AccessTools.Field(typeof(DetailsScreen), "sideScreens");
                 if (sideScreensField == null) {
                     Log.Warn("DetailsScreen.sideScreens field not found; side-screen disabled");
                     return;
                 }
-                var sideScreens = sideScreensField.GetValue(__instance)
+                var sideScreens = sideScreensField.GetValue(detailsScreen)
                     as List<DetailsScreen.SideScreenRef>;
                 if (sideScreens == null) {
                     Log.Warn("DetailsScreen.sideScreens not a List<SideScreenRef>; side-screen disabled");
@@ -32,7 +36,7 @@ namespace DupeTimeline.UI {
 
                 var go = new GameObject(nameof(DupeTimelineSideScreen));
                 go.SetActive(false);
-                go.transform.SetParent(__instance.transform, false);
+                go.transform.SetParent(detailsScreen.transform, false);
                 go.transform.localScale = Vector3.one;
 
                 var screen = go.AddComponent<DupeTimelineSideScreen>();

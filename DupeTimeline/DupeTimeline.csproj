@@ -37,7 +37,15 @@
 
   <Target Name="ValidateGameFolder" BeforeTargets="ResolveAssemblyReferences">
     <Error Condition="!Exists('$(GameFolder)')"
-           Text="Could not locate ONI install. Set GameFolder explicitly: dotnet build -p:GameFolder=&quot;path\to\OxygenNotIncluded_Data\Managed&quot;" />
+           Text="
+[DupeTimeline] Could not locate Oxygen Not Included install at any of:
+  $(MSBuildProgramFiles32)\Steam\steamapps\common\OxygenNotIncluded
+  C:\Program Files\Steam\steamapps\common\OxygenNotIncluded
+  D:\SteamLibrary\steamapps\common\OxygenNotIncluded
+  E:\SteamLibrary\steamapps\common\OxygenNotIncluded
+Set the path explicitly:
+  dotnet build -c Release -p:GameFolder=&quot;C:\path\to\OxygenNotIncluded\OxygenNotIncluded_Data\Managed&quot;
+GameFolder must point at the directory containing Assembly-CSharp.dll." />
   </Target>
 
   <ItemGroup>
