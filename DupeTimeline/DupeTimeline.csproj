@@ -18,7 +18,7 @@
   -->
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <AssemblyName>DupeTimeline</AssemblyName>
     <RootNamespace>DupeTimeline</RootNamespace>
     <LangVersion>9.0</LangVersion>
@@ -85,6 +85,18 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
       <HintPath>$(GameFolder)\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Provides .NET Framework 4.8 reference assemblies via NuGet so the
+      build doesn't require the .NET Framework 4.8 Developer Pack to be
+      installed locally. Pure build-time dep, never shipped.
+    -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
