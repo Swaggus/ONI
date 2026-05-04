@@ -112,49 +112,66 @@ GameFolder must point at the directory containing Assembly-CSharp.dll." />
   </ItemGroup>
 
   <!--
-    ILRepack's default Mono.Cecil resolver looks for referenced assemblies
-    in the same directory as the input DLL. We're not redistributing game
-    DLLs, but ILRepack does need to *resolve* them (read their metadata)
-    while merging — otherwise it can't follow type references inside our
-    DLL or PLib's. So we copy the needed game DLLs into TargetDir for the
-    duration of the merge, then delete them right after.
-
-    The LibraryPath parameter on the ILRepack task is unreliable across
-    versions of this NuGet package; copy-and-delete avoids the question.
+    ILRepack needs to resolve the game DLLs that our DLL and PLib reference.
+    Mono.Cecil's resolver looks in the directory of the input assembly plus
+    any LibraryPath we pass. Belt-and-suspenders: stage the DLLs into
+    TargetDir AND pass them via LibraryPath ItemGroup.
   -->
-  <ItemGroup>
-    <ILRepackResolveDeps Include="Assembly-CSharp.dll" />
-    <ILRepackResolveDeps Include="Assembly-CSharp-firstpass.dll" />
-    <ILRepackResolveDeps Include="0Harmony.dll" />
-    <ILRepackResolveDeps Include="UnityEngine.dll" />
-    <ILRepackResolveDeps Include="UnityEngine.CoreModule.dll" />
-    <ILRepackResolveDeps Include="UnityEngine.UI.dll" />
-    <ILRepackResolveDeps Include="UnityEngine.UIModule.dll" />
-    <ILRepackResolveDeps Include="UnityEngine.InputLegacyModule.dll" />
-    <ILRepackResolveDeps Include="UnityEngine.TextRenderingModule.dll" />
-    <ILRepackResolveDeps Include="Unity.TextMeshPro.dll" />
-  </ItemGroup>
-
   <Target Name="ILRepackerStageDeps" BeforeTargets="ILRepacker">
-    <Copy SourceFiles="@(ILRepackResolveDeps -> '$(GameFolder)\%(Identity)')"
+    <ItemGroup>
+      <_StagedGameDlls Include="$(GameFolder)\Assembly-CSharp.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\Assembly-CSharp-firstpass.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\0Harmony.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\UnityEngine.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\UnityEngine.CoreModule.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\UnityEngine.UI.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\UnityEngine.UIModule.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\UnityEngine.InputLegacyModule.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\UnityEngine.TextRenderingModule.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\Unity.TextMeshPro.dll" />
+      <_StagedGameDlls Include="$(GameFolder)\mscorlib.dll" Condition="Exists('$(GameFolder)\mscorlib.dll')" />
+      <_StagedGameDlls Include="$(GameFolder)\netstandard.dll" Condition="Exists('$(GameFolder)\netstandard.dll')" />
+    </ItemGroup>
+    <Message Importance="high" Text="ILRepack staging from: $(GameFolder)" />
+    <Message Importance="high" Text="ILRepack staging into: $(TargetDir)" />
+    <Message Importance="high" Text="ILRepack stage list: @(_StagedGameDlls -> '%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(_StagedGameDlls)"
           DestinationFolder="$(TargetDir)"
-          SkipUnchangedFiles="true" />
+          SkipUnchangedFiles="true"
+          ContinueOnError="true" />
   </Target>
 
   <Target Name="ILRepacker" AfterTargets="Build">
     <ItemGroup>
       <ILRepackInputs Include="$(TargetPath)" />
       <ILRepackInputs Include="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
+      <_ILRepackLibPaths Include="$(TargetDir.TrimEnd('\'))" />
+      <_ILRepackLibPaths Include="$(GameFolder)" />
     </ItemGroup>
     <ILRepack
       Parallel="true"
       Internalize="true"
       InputAssemblies="@(ILRepackInputs)"
       OutputFile="$(TargetPath)"
+      LibraryPath="@(_ILRepackLibPaths)"
       Condition="'@(ILRepackInputs->Count())' &gt; '1'"
     />
     <Delete Files="$(TargetDir)PLib.dll" Condition="Exists('$(TargetDir)PLib.dll')" />
-    <Delete Files="@(ILRepackResolveDeps -> '$(TargetDir)%(Identity)')" />
+    <ItemGroup>
+      <_StagedToDelete Include="$(TargetDir)Assembly-CSharp.dll" />
+      <_StagedToDelete Include="$(TargetDir)Assembly-CSharp-firstpass.dll" />
+      <_StagedToDelete Include="$(TargetDir)0Harmony.dll" />
+      <_StagedToDelete Include="$(TargetDir)UnityEngine.dll" />
+      <_StagedToDelete Include="$(TargetDir)UnityEngine.CoreModule.dll" />
+      <_StagedToDelete Include="$(TargetDir)UnityEngine.UI.dll" />
+      <_StagedToDelete Include="$(TargetDir)UnityEngine.UIModule.dll" />
+      <_StagedToDelete Include="$(TargetDir)UnityEngine.InputLegacyModule.dll" />
+      <_StagedToDelete Include="$(TargetDir)UnityEngine.TextRenderingModule.dll" />
+      <_StagedToDelete Include="$(TargetDir)Unity.TextMeshPro.dll" />
+      <_StagedToDelete Include="$(TargetDir)mscorlib.dll" />
+      <_StagedToDelete Include="$(TargetDir)netstandard.dll" />
+    </ItemGroup>
+    <Delete Files="@(_StagedToDelete)" ContinueOnError="true" />
     <Message Importance="high" Text="ILRepacked PLib into $(TargetPath)" />
   </Target>
 
