@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Build setup
+    -----------
+    ONI mods compile against the game's shipped Unity DLLs. Those DLLs are not
+    redistributable, so each developer populates a local RefDlls/ folder.
+
+    Required DLLs (copy from <ONI install>/OxygenNotIncluded_Data/Managed/):
+      Assembly-CSharp.dll
+      Assembly-CSharp-firstpass.dll
+      UnityEngine.dll
+      UnityEngine.CoreModule.dll
+      UnityEngine.UI.dll
+      0Harmony.dll
+
+    PLib (https://github.com/peterhaneve/ONIMods/tree/main/PLib):
+      Build PLib.dll yourself or extract from a PeterHan mod's bin/ output,
+      then drop it into RefDlls/ alongside the others.
+
+    Override the path with: -p:GameLibsFolder=C:\path\to\dlls
+
+    Output: bin/Release/DupeTimeline.dll. Copy that DLL plus mod.yaml and
+    mod_info.yaml into:
+      %USERPROFILE%\Documents\Klei\OxygenNotIncluded\mods\Local\DupeTimeline\
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+    <AssemblyName>DupeTimeline</AssemblyName>
+    <RootNamespace>DupeTimeline</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configurations>Debug;Release</Configurations>
+    <GameLibsFolder Condition="'$(GameLibsFolder)' == ''">$(MSBuildThisFileDirectory)..\RefDlls</GameLibsFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameLibsFolder)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(GameLibsFolder)\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(GameLibsFolder)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameLibsFolder)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameLibsFolder)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(GameLibsFolder)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PLib">
+      <HintPath>$(GameLibsFolder)\PLib.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="mod.yaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="mod_info.yaml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

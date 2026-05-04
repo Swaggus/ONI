@@ -1,0 +1,6 @@
+supportedContent: ALL
+APIVersion: 2
+# TODO: bump minimumSupportedBuild to your current ONI build number.
+# Find it in the main-menu lower-left corner, e.g. "U54-654000-S".
+minimumSupportedBuild: 596402
+version: 0.1.0

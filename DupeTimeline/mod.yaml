@@ -1,0 +1,6 @@
+title: "Dupe Activity Timeline"
+description: |
+  Per-duplicant Gantt-style activity timeline. Tracks what each dupe did
+  across each cycle: chore type, target, work time vs travel time. Useful
+  for spotting wasted travel, bad assignments, and chronic interruptions.
+staticID: DupeTimeline

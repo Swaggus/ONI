@@ -1,0 +1,24 @@
+# Build output
+bin/
+obj/
+*.pdb
+
+# Local reference DLLs (per-developer; populated from your ONI install)
+RefDlls/
+
+# IDE / tool state
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NuGet
+*.nupkg
+packages/
