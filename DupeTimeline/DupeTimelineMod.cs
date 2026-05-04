@@ -15,7 +15,11 @@ namespace DupeTimeline {
     // save (and tear down the debug-hotkey GameObject from the previous save
     // if there was one). Replaces what PLib's [PLibMethod(RunAt.OnStartGame)]
     // would have done — keeps PLib out of the dependency tree.
-    [HarmonyPatch(typeof(Game), nameof(Game.OnSpawn))]
+    //
+    // Game.OnSpawn / OnDestroy are protected, so the Harmony attribute uses
+    // string literals instead of nameof() (nameof can't reference symbols
+    // that are inaccessible from this assembly).
+    [HarmonyPatch(typeof(Game), "OnSpawn")]
     internal static class Game_OnSpawn_Patch {
         private static GameObject debugGo;
 
@@ -31,7 +35,7 @@ namespace DupeTimeline {
         }
     }
 
-    [HarmonyPatch(typeof(Game), nameof(Game.OnDestroy))]
+    [HarmonyPatch(typeof(Game), "OnDestroy")]
     internal static class Game_OnDestroy_Patch {
         internal static void Prefix() {
             TimelineStore.Reset();
