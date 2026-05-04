@@ -69,6 +69,46 @@ namespace DupeTimeline {
                 : Array.Empty<TimelineSegment>();
         }
 
+        public static IEnumerable<int> KnownDupeIds() {
+            return store.Keys;
+        }
+
+        // ---------- Save/load ----------
+
+        public static void Restore(int dupeInstanceId, List<SerializedSegment> segments) {
+            if (segments == null) return;
+            var buf = GetOrCreate(dupeInstanceId);
+            buf.Clear();
+            foreach (var s in segments) {
+                buf.Add(new TimelineSegment {
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    Kind = (TimelineSegmentKind)s.Kind,
+                    ChoreGuid = s.ChoreGuid,
+                    ChoreTypeId = s.ChoreTypeId,
+                    WorkableInstanceId = s.WorkableInstanceId,
+                    TargetCell = s.TargetCell,
+                });
+            }
+        }
+
+        public static List<SerializedSegment> Snapshot(int dupeInstanceId) {
+            var list = new List<SerializedSegment>();
+            if (!store.TryGetValue(dupeInstanceId, out var buf)) return list;
+            foreach (var seg in buf.InOrder()) {
+                list.Add(new SerializedSegment {
+                    StartTime = seg.StartTime,
+                    EndTime = seg.EndTime,
+                    Kind = (int)seg.Kind,
+                    ChoreGuid = seg.ChoreGuid,
+                    ChoreTypeId = seg.ChoreTypeId,
+                    WorkableInstanceId = seg.WorkableInstanceId,
+                    TargetCell = seg.TargetCell,
+                });
+            }
+            return list;
+        }
+
         // ---------- Hook entry points ----------
 
         public static void OnChoreStart(int dupeInstanceId, Chore chore) {

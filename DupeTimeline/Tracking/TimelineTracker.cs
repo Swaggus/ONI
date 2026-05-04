@@ -14,24 +14,27 @@ namespace DupeTimeline {
         [Serialize]
         private List<SerializedSegment> persistedSegments = new List<SerializedSegment>();
 
+        private int InstanceId {
+            get {
+                var id = GetComponent<KPrefabID>();
+                return id != null ? id.InstanceID : -1;
+            }
+        }
+
         protected override void OnSpawn() {
             base.OnSpawn();
-            // TODO: rehydrate TimelineStore's ring buffer for this dupe from
-            // persistedSegments. Resolve our dupe instance id via
-            // GetComponent<KPrefabID>().InstanceID.
+            var id = InstanceId;
+            if (id < 0) return;
+            TimelineStore.Restore(id, persistedSegments);
         }
 
-        protected override void OnCleanUp() {
-            // TODO: snapshot live ring buffer back into persistedSegments
-            // before destruction so OnSerializing has fresh data.
-            base.OnCleanUp();
-        }
-
-        // KSerialization hook fired immediately before this component is
-        // written to the save. Snapshot the in-memory ring buffer here.
+        // Klei's KSerialization fires this immediately before this component
+        // is written to the save. Snapshot live ring buffer into the
+        // persisted list so [Serialize] picks up fresh data.
         public void OnSerializing() {
-            // TODO: copy TimelineStore.GetTimeline(InstanceId) into
-            // persistedSegments.
+            var id = InstanceId;
+            if (id < 0) return;
+            persistedSegments = TimelineStore.Snapshot(id);
         }
     }
 

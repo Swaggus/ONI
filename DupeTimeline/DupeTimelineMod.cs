@@ -3,6 +3,7 @@ using KMod;
 using PeterHan.PLib.Core;
 using PeterHan.PLib.Options;
 using PeterHan.PLib.PatchManager;
+using UnityEngine;
 
 namespace DupeTimeline {
     public sealed class DupeTimelineMod : UserMod2 {
@@ -20,18 +21,31 @@ namespace DupeTimeline {
             new POptions().RegisterOptions(this, typeof(DupeTimelineOptions));
         }
 
+        private static GameObject debugGo;
+
         [PLibMethod(RunAt.OnStartGame)]
         internal static void OnStartGame() {
             var options = POptions.ReadSettings<DupeTimelineOptions>()
                 ?? new DupeTimelineOptions();
             TimelineStore.Configure(options);
             TimelineStore.Reset();
-            PUtil.LogDebug("DupeTimeline started");
+
+            // Plain GameObject host for the debug hotkey — no KMonoBehaviour
+            // lifecycle needed.
+            debugGo = new GameObject("DupeTimelineDebug");
+            debugGo.AddComponent<Debug.DebugDumpHotkey>();
+            Object.DontDestroyOnLoad(debugGo);
+
+            PUtil.LogDebug("DupeTimeline started (press F10 to dump timelines)");
         }
 
         [PLibMethod(RunAt.OnEndGame)]
         internal static void OnEndGame() {
             TimelineStore.Reset();
+            if (debugGo != null) {
+                Object.Destroy(debugGo);
+                debugGo = null;
+            }
         }
     }
 }
