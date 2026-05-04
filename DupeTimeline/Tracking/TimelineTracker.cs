@@ -10,7 +10,7 @@ namespace DupeTimeline {
     //
     // Pattern lifted from PeterHan's ResourcesInMotion StateTimeTrackerComponent.
     [SerializationConfig(MemberSerialization.OptIn)]
-    public sealed class TimelineTracker : KMonoBehaviour {
+    public sealed class TimelineTracker : KMonoBehaviour, ISaveLoadable {
         [Serialize]
         private List<SerializedSegment> persistedSegments = new List<SerializedSegment>();
 

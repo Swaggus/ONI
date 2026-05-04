@@ -8,24 +8,27 @@ namespace DupeTimeline.Patches {
     // uses in PathPatches/NavPatches.cs, so it is known to be perf-safe.
     //
     // Inside the callback, smi is a ChoreDriver.StatesInstance and exposes:
-    //   smi.choreConsumer                          -> ChoreConsumer
-    //   smi.choreConsumer.choreDriver              -> ChoreDriver
-    //   smi.choreConsumer.choreDriver.GetCurrentChore() -> Chore
-    //   smi.choreConsumer.navigator                -> Navigator
-    //   smi.gameObject                             -> the dupe
+    //   smi.GetCurrentChore() -> Chore (the active chore for this dupe)
+    //   smi.gameObject        -> the dupe
+    //   smi.navigator         -> Navigator (auto-property)
+    //
+    // We use smi.GetCurrentChore() directly rather than going through
+    // smi.choreConsumer.choreDriver — choreConsumer is a private field on
+    // StatesInstance and accessing it from outside PLib's namespace requires
+    // IgnoresAccessChecksTo or AccessTools.
     public static class ChoreDriverPatches {
         [HarmonyPatch(typeof(ChoreDriver.States), nameof(ChoreDriver.States.InitializeStates))]
         public static class ChoreDriver_States_InitializeStates_Patch {
             internal static void Postfix(ChoreDriver.States __instance) {
                 __instance.haschore.Enter(smi => {
                     var dupe = smi.gameObject;
-                    var chore = smi.choreConsumer?.choreDriver?.GetCurrentChore();
+                    var chore = smi.GetCurrentChore();
                     if (dupe == null || chore == null) return;
                     TimelineStore.OnChoreStart(InstanceIdOf(dupe), chore);
                 });
                 __instance.haschore.Exit(smi => {
                     var dupe = smi.gameObject;
-                    var chore = smi.choreConsumer?.choreDriver?.GetCurrentChore();
+                    var chore = smi.GetCurrentChore();
                     if (dupe == null) return;
                     TimelineStore.OnChoreEnd(InstanceIdOf(dupe), chore);
                 });
