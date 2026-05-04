@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace DupeTimeline.Debug {
+namespace DupeTimeline.Diagnostics {
     // F10: dump every dupe's recent timeline to Player.log. Useful sanity
     // check before / instead of the side-screen UI.
     public sealed class DebugDumpHotkey : MonoBehaviour {

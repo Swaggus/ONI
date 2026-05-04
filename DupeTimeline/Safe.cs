@@ -1,5 +1,3 @@
-using System;
-
 namespace DupeTimeline {
     // Defensive wrapper for hook callbacks. ONI's chore system runs on the
     // sim thread; an unhandled exception in a Harmony patch can take down the
@@ -7,18 +5,21 @@ namespace DupeTimeline {
     // ErrorThreshold failures stop logging to keep Player.log readable.
     //
     // Pattern lifted from PeterHan's EfficientFetch (errorCount + threshold).
+    //
+    // Fully-qualifies System.Action because ONI defines its own top-level
+    // Action class that would otherwise shadow the delegate type.
     internal static class Safe {
         private const int ErrorThreshold = 10;
         private static int errorCount;
 
-        public static void Run(Action a) {
+        public static void Run(System.Action a) {
             if (errorCount >= ErrorThreshold) {
                 try { a(); } catch { /* silently swallow once over threshold */ }
                 return;
             }
             try {
                 a();
-            } catch (Exception e) {
+            } catch (System.Exception e) {
                 errorCount++;
                 Log.Exc(e);
                 if (errorCount == ErrorThreshold) {

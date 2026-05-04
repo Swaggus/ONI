@@ -28,7 +28,7 @@ namespace DupeTimeline {
 
             if (debugGo != null) Object.Destroy(debugGo);
             debugGo = new GameObject("DupeTimelineDebug");
-            debugGo.AddComponent<Debug.DebugDumpHotkey>();
+            debugGo.AddComponent<Diagnostics.DebugDumpHotkey>();
             Object.DontDestroyOnLoad(debugGo);
 
             Log.Info("Started (press F10 to dump timelines)");

@@ -232,7 +232,6 @@ namespace DupeTimeline.UI {
             tmp.fontSize = size;
             tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Left;
-            tmp.enableWordWrapping = false;
             var font = Fonts.Default();
             if (font != null) tmp.font = font;
             return tmp;
